@@ -1,68 +1,177 @@
-// Lista de canciones del álbum DATA
-const songs = [
-    { title: "Obstaculo", score: 0 },
-    { title: "PASIEMPRE", score: 0 },
-    { title: "Todavía", score: 0 },
-    { title: "FANTASMA | AVC", score: 0 },
-    { title: "MOJABI GHOST", score: 0 },
-    { title: "11 y ONCE", score: 0 },
-    { title: "Desde las 10 (KANY´S INTERLUDE)", score: 0 },
-    { title: "Mañana", score: 0 },
-    { title: "BUENOS AIRES", score: 0 },
-    { title: "COLMILLO", score: 0 },
-    { title: "LA BABY", score: 0 },
-    { title: "Me jodí...", score: 0 },
-    { title: "VOLVER", score: 0 },
-    { title: "EN VISTO", score: 0 },
-    { title: "Lo siento BB:/", score: 0 },
-    { title: "Si preguntas por mí", score: 0 },
-    { title: "Sci-Fi", score: 0 },
-    { title: "CORLONE INTERLUDE", score: 0 },
-    { title: "PARANORMAL", score: 0 },
-    { title: "SACRIFICIO", score: 0 }
+// =====================
+// 1) Datos
+// =====================
+
+const canciones = [
+  "Pasiempre",
+  "11 y Once",
+  "Lo Siento BB :/",
+  "Volver",
+  "Colmillo",
+  "Si Preguntan Por Mí",
+  "Mojabi Ghost",
+  "Todavía",
+  "Fantasma",
+  "Sacrificio"
 ];
 
-let song1, song2;
+const segmentos = {
+  "F1": "Fan casual",
+  "F2": "Fan del reggaetón clásico",
+  "F3": "Fan experimental",
+  "P":  "Productor / interesado en producción",
+  "L":  "Oyente enfocado en letras"
+};
 
-// Mostrar dos canciones aleatorias
-function showSongs() {
-    let indices = [];
-    while (indices.length < 2) {
-        let rand = Math.floor(Math.random() * songs.length);
-        if (!indices.includes(rand)) indices.push(rand);
+const contextos = {
+  "I": "¿Cuál impacta más al primer escucha?",
+  "R": "¿Cuál tiene más replay value?",
+  "C": "¿Cuál representa mejor el concepto del álbum?",
+  "F": "¿Cuál funciona mejor en una fiesta?"
+};
+
+const RATING_INICIAL = 1000;
+const K = 32;
+
+const STORAGE_KEY = "datamash_state_v1";
+
+function defaultState(){
+  const buckets = {};
+  for (const seg of Object.keys(segmentos)){
+    for (const ctx of Object.keys(contextos)){
+      const key = `${seg}__${ctx}`;
+      buckets[key] = {};
+      canciones.forEach(c => buckets[key][c] = RATING_INICIAL);
     }
-    song1 = songs[indices[0]];
-    song2 = songs[indices[1]];
-
-    document.getElementById("song1").textContent = song1.title;
-    document.getElementById("song2").textContent = song2.title;
+  }
+  return { buckets, votes: [] };
 }
 
-// Actualizar ranking
-function updateRanking() {
-    let rankingList = document.getElementById("ranking-list");
-    rankingList.innerHTML = "";
-    songs.sort((a, b) => b.score - a.score);
-    songs.forEach(song => {
-        let li = document.createElement("li");
-        li.textContent = `${song.title} - Puntaje: ${song.score}`;
-        rankingList.appendChild(li);
-    });
+function loadState(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return defaultState();
+  try { return JSON.parse(raw); }
+  catch { return defaultState(); }
 }
 
-// Eventos de clic
-document.getElementById("song1").addEventListener("click", () => {
-    song1.score++;
-    updateRanking();
-    showSongs();
+function saveState(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+let state = loadState();
+
+function expectedScore(ra, rb){
+  return 1 / (1 + Math.pow(10, (rb - ra) / 400));
+}
+
+function updateElo(bucket, A, B, winner){
+  const ra = bucket[A], rb = bucket[B];
+  const ea = expectedScore(ra, rb);
+  const eb = expectedScore(rb, ra);
+
+  const sa = (winner === "A") ? 1 : 0;
+  const sb = (winner === "B") ? 1 : 0;
+
+  bucket[A] = ra + K * (sa - ea);
+  bucket[B] = rb + K * (sb - eb);
+}
+
+function randomPair(){
+  const a = canciones[Math.floor(Math.random() * canciones.length)];
+  let b = a;
+  while (b === a){
+    b = canciones[Math.floor(Math.random() * canciones.length)];
+  }
+  return [a, b];
+}
+
+function bucketKey(seg, ctx){ return `${seg}__${ctx}`; }
+
+function topN(bucket, n=10){
+  const arr = Object.entries(bucket).map(([cancion, rating]) => ({cancion, rating}));
+  arr.sort((x,y) => y.rating - x.rating);
+  return arr.slice(0, n);
+}
+
+// UI wiring (idéntico al base)
+
+const segmentSelect = document.getElementById("segmentSelect");
+const contextSelect = document.getElementById("contextSelect");
+const questionEl = document.getElementById("question");
+const labelA = document.getElementById("labelA");
+const labelB = document.getElementById("labelB");
+const btnA = document.getElementById("btnA");
+const btnB = document.getElementById("btnB");
+const btnNewPair = document.getElementById("btnNewPair");
+const btnShowTop = document.getElementById("btnShowTop");
+const topBox = document.getElementById("topBox");
+const btnReset = document.getElementById("btnReset");
+const btnExport = document.getElementById("btnExport");
+
+let currentA = null;
+let currentB = null;
+
+function fillSelect(selectEl, obj){
+  selectEl.innerHTML = "";
+  for (const [k, v] of Object.entries(obj)){
+    const opt = document.createElement("option");
+    opt.value = k;
+    opt.textContent = `${k} — ${v}`;
+    selectEl.appendChild(opt);
+  }
+}
+
+fillSelect(segmentSelect, segmentos);
+fillSelect(contextSelect, contextos);
+
+segmentSelect.value = "F1";
+contextSelect.value = "I";
+
+function refreshQuestion(){
+  questionEl.textContent = contextos[contextSelect.value];
+}
+
+function newDuel(){
+  [currentA, currentB] = randomPair();
+  labelA.textContent = currentA;
+  labelB.textContent = currentB;
+  refreshQuestion();
+}
+
+function renderTop(){
+  const bucket = state.buckets[bucketKey(segmentSelect.value, contextSelect.value)];
+  const rows = topN(bucket, 10);
+
+  topBox.innerHTML = rows.map((r, idx) => `
+    <div class="toprow">
+      <div><b>${idx+1}.</b> ${r.cancion}</div>
+      <div>${r.rating.toFixed(1)}</div>
+    </div>
+  `).join("");
+}
+
+function vote(winner){
+  const key = bucketKey(segmentSelect.value, contextSelect.value);
+  const bucket = state.buckets[key];
+
+  updateElo(bucket, currentA, currentB, winner);
+  saveState();
+  renderTop();
+  newDuel();
+}
+
+btnA.addEventListener("click", () => vote("A"));
+btnB.addEventListener("click", () => vote("B"));
+btnNewPair.addEventListener("click", newDuel);
+btnShowTop.addEventListener("click", renderTop);
+
+btnReset.addEventListener("click", () => {
+  state = defaultState();
+  saveState();
+  renderTop();
+  newDuel();
 });
 
-document.getElementById("song2").addEventListener("click", () => {
-    song2.score++;
-    updateRanking();
-    showSongs();
-});
-
-// Inicializar
-showSongs();
-updateRanking();
+newDuel();
+renderTop();
+refreshQuestion();
