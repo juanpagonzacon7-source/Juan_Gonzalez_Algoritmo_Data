@@ -1,28 +1,37 @@
+/* Estilos generales del body */
 body {
-    font-family: Arial, sans-serif;
-    background: #111;
-    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #121212;
+    color: #ffffff;
     text-align: center;
-    padding: 50px;
+    margin: 0;
+    padding: 50px 20px;
 }
 
+/* Contenedor principal */
 .container {
-    max-width: 700px;
+    max-width: 800px;
     margin: 0 auto;
 }
 
+/* Título principal */
 h1 {
+    font-size: 28px;
     margin-bottom: 40px;
+    color: #1ed760; /* verde estilo Spotify */
 }
 
+/* Comparación de canciones */
 #comparison {
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 20px;
+    flex-wrap: wrap;
     margin-bottom: 50px;
 }
 
+/* Botones de canciones */
 .song-btn {
     background: #1db954;
     border: none;
@@ -30,25 +39,56 @@ h1 {
     color: #fff;
     font-size: 18px;
     cursor: pointer;
-    border-radius: 5px;
+    border-radius: 8px;
     width: 250px;
-    transition: background 0.3s;
+    transition: background 0.3s, transform 0.2s;
 }
 
 .song-btn:hover {
     background: #1ed760;
+    transform: scale(1.05);
 }
 
+/* Texto VS */
 .vs-text {
     font-size: 20px;
     font-weight: bold;
+    margin: 10px 0;
 }
 
+/* Ranking */
 #ranking {
-    margin-top: 50px;
+    margin-top: 40px;
+    text-align: left;
+}
+
+#ranking h2 {
+    font-size: 22px;
+    margin-bottom: 15px;
+    color: #ffffff;
 }
 
 #ranking-list {
-    text-align: left;
+    list-style-type: decimal;
     padding-left: 20px;
+}
+
+#ranking-list li {
+    font-size: 18px;
+    padding: 5px 0;
+    border-bottom: 1px solid #333;
+}
+
+/* Estilos responsive */
+@media (max-width: 600px) {
+    .song-btn {
+        width: 100%;
+        font-size: 16px;
+        padding: 12px 20px;
+    }
+    
+    #comparison {
+        flex-direction: column;
+        gap: 15px;
+    }
 }
