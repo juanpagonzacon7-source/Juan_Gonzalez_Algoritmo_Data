@@ -2,22 +2,32 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ranking del álbum DATA - Tainy</title>
+    <!-- Vinculación al CSS -->
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <h1>Elige tu canción favorita del álbum DATA</h1>
+
+        <!-- Sección de comparación -->
         <div id="comparison">
-            <button id="song1" class="song-btn"></button>
+            <button id="song1" class="song-btn">Canción 1</button>
             <span class="vs-text">VS</span>
-            <button id="song2" class="song-btn"></button>
+            <button id="song2" class="song-btn">Canción 2</button>
         </div>
+
+        <!-- Sección de ranking -->
         <div id="ranking">
             <h2>Ranking de Canciones</h2>
-            <ol id="ranking-list"></ol>
+            <ol id="ranking-list">
+                <!-- Aquí se insertarán las canciones en orden -->
+            </ol>
         </div>
     </div>
+
+    <!-- Vinculación al JavaScript -->
     <script src="script.js"></script>
 </body>
 </html>
