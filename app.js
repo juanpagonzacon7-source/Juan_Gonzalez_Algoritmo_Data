@@ -24,7 +24,7 @@ const songs = [
 
 let song1, song2;
 
-// Función para mostrar dos canciones aleatorias
+// Mostrar dos canciones aleatorias
 function showSongs() {
     let indices = [];
     while (indices.length < 2) {
@@ -38,7 +38,7 @@ function showSongs() {
     document.getElementById("song2").textContent = song2.title;
 }
 
-// Función para actualizar el ranking
+// Actualizar ranking
 function updateRanking() {
     let rankingList = document.getElementById("ranking-list");
     rankingList.innerHTML = "";
@@ -50,7 +50,7 @@ function updateRanking() {
     });
 }
 
-// Eventos para elegir canción
+// Eventos de clic
 document.getElementById("song1").addEventListener("click", () => {
     song1.score++;
     updateRanking();
