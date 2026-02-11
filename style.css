@@ -1,7 +1,7 @@
-/* Estilos generales del body */
+/* Estilos generales */
 body {
     font-family: Arial, Helvetica, sans-serif;
-    background: #121212;
+    background-color: #121212;
     color: #ffffff;
     text-align: center;
     margin: 0;
@@ -31,9 +31,8 @@ h1 {
     margin-bottom: 50px;
 }
 
-/* Botones de canciones */
 .song-btn {
-    background: #1db954;
+    background-color: #1db954;
     border: none;
     padding: 15px 25px;
     color: #fff;
@@ -45,11 +44,10 @@ h1 {
 }
 
 .song-btn:hover {
-    background: #1ed760;
+    background-color: #1ed760;
     transform: scale(1.05);
 }
 
-/* Texto VS */
 .vs-text {
     font-size: 20px;
     font-weight: bold;
@@ -79,14 +77,14 @@ h1 {
     border-bottom: 1px solid #333;
 }
 
-/* Estilos responsive */
+/* Responsive */
 @media (max-width: 600px) {
     .song-btn {
         width: 100%;
         font-size: 16px;
         padding: 12px 20px;
     }
-    
+
     #comparison {
         flex-direction: column;
         gap: 15px;
